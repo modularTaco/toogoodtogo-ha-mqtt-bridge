@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
 
-import schedule
 import arrow
 import coloredlogs
 import paho.mqtt.client as mqtt
+import schedule
 from croniter import croniter
 from google_play_scraper import app
 from packaging import version
@@ -331,17 +331,28 @@ def next_sales_loop():
             for fav_id in favourite_ids:
                 item = tgtg_client.get_item(item_id=fav_id)
                 if "next_sales_window_purchase_start" in item:
-                    next_sales_window = arrow.get(item["next_sales_window_purchase_start"]).to(tz=settings.timezone)
+                    next_sales_window = arrow.get(item["next_sales_window_purchase_start"]).to(
+                        tz=settings.timezone
+                    )
                     if next_sales_window > arrow.now(tz=settings.timezone):
                         schedule_time = next_sales_window.format("HH:mm")
                         schedule_name = item["display_name"] + " " + schedule_time
 
                         global scheduled_jobs
                         if not any(d["name"] == schedule_name for d in scheduled_jobs):
-                            job = schedule.every().day.at(next_sales_window.shift(minutes=-1).format("HH:mm")).do(trigger_intense_fetch)
+                            job = (
+                                schedule.every()
+                                .day.at(next_sales_window.shift(minutes=-1).format("HH:mm"))
+                                .do(trigger_intense_fetch)
+                            )
                             scheduled_jobs.append({"name": schedule_name, "job": job})
-                            logger.info("Added new automatic intense fetch run for " + item["display_name"] + " at " +
-                                        schedule_time + " today")
+                            logger.info(
+                                "Added new automatic intense fetch run for "
+                                + item["display_name"]
+                                + " at "
+                                + schedule_time
+                                + " today"
+                            )
 
         logger.debug("Scheduled automatic intense jobs: " + str(scheduled_jobs))
 
@@ -478,9 +489,9 @@ def calc_timeout():
 
 def intense_fetch():
     if (
-            "intense_fetch" not in settings.tgtg
-            or "period_of_time" not in settings.tgtg.intense_fetch
-            or "interval" not in settings.tgtg.intense_fetch
+        "intense_fetch" not in settings.tgtg
+        or "period_of_time" not in settings.tgtg.intense_fetch
+        or "interval" not in settings.tgtg.intense_fetch
     ):
         logger.error("Incomplete settings file. Please check the sample!")
         return None
