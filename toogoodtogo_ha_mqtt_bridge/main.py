@@ -596,8 +596,6 @@ def start():
         email=settings.tgtg.email, language=settings.tgtg.language, timeout=30, user_agent=build_ua()
     )
 
-    demo = tgtg_client
-
     watchdog = Watchdog(
         timeout=calc_timeout(),
         user_handler=watchdog_handler,
