@@ -149,7 +149,7 @@ def check():
         check_for_removed_stores(shops)
 
     # Start automatic intense fetch watchdog
-    if first_run:
+    if first_run and settings.get("enable_auto_intense_fetch"):
         thread = threading.Thread(target=next_sales_loop)
         thread.start()
 
@@ -595,6 +595,8 @@ def start():
     tgtg_client = TgtgClient(
         email=settings.tgtg.email, language=settings.tgtg.language, timeout=30, user_agent=build_ua()
     )
+
+    demo = tgtg_client
 
     watchdog = Watchdog(
         timeout=calc_timeout(),
